@@ -20,11 +20,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.android.trackmysleepquality.R
 import com.example.android.trackmysleepquality.database.SleepDatabase
 import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerBinding
@@ -63,8 +65,37 @@ class SleepTrackerFragment : Fragment() {
 
         binding.lifecycleOwner = this
 
+        //Creating a GridLayout Manager
+        val manager = GridLayoutManager(activity, 3)
+
+        //TODO learn this line of Code
+        manager.spanSizeLookup = object: GridLayoutManager.SpanSizeLookup(){
+            override fun getSpanSize(position: Int) = when (position){
+                0 -> 3
+                else -> 1
+            }
+
+        }
+
+        //allocates manager to recycler view through the binding object
+        binding.sleepList.layoutManager = manager
+
+        //Navgiates to SleeepQualityDetail Fragment once a clicklistener is selected
+        sleepTrackerViewModel.navigateToSleepDataQuality.observe(viewLifecycleOwner, Observer {night ->
+            night?.let {
+                this.findNavController().navigate(SleepTrackerFragmentDirections
+                    .actionSleepTrackerFragmentToSleepDetailFragment(night))
+                sleepTrackerViewModel.onSleepDataQualityNavigated()
+            }
+        })
+
+
+
+
         // creates a new adapter
-        val adapter = SleepNightAdapter()
+        val adapter = SleepNightAdapter( SleepNightListener { nightId ->
+            sleepTrackerViewModel.onSleepNightClicked(nightId)
+        })
 
         // connects it with our recycler view adapter
         binding.sleepList.adapter = adapter
@@ -89,7 +120,7 @@ class SleepTrackerFragment : Fragment() {
             nights?.let {
 
                //sets the data for the adapter
-                adapter.submitList(nights)
+                adapter.addHeaderAndSubmitList(nights)
 
 
             }

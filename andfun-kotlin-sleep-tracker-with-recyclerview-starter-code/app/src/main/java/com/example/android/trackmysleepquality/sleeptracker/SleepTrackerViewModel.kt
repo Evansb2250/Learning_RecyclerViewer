@@ -122,6 +122,8 @@ class SleepTrackerViewModel(
     val navigateToSleepQuality: LiveData<SleepNight>
         get() = _navigateToSleepQuality
 
+
+
     /**
      * Call this immediately after navigating to [SleepQualityFragment]
      *
@@ -136,13 +138,18 @@ class SleepTrackerViewModel(
     val navigateToSleepDataQuality
         get() = _navigateToSleepDataQuality
 
+    //
     fun onSleepNightClicked(id: Long) {
         _navigateToSleepDataQuality.value = id
     }
 
+    //Used to reset navigation
     fun onSleepDataQualityNavigated() {
         _navigateToSleepDataQuality.value = null
     }
+
+
+
 
     init {
         initializeTonight()
